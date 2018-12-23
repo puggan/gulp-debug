@@ -29,15 +29,17 @@ module.exports = options => {
 
 	return through.obj((file, enc, cb) => {
 		if (options.showFiles) {
+			const type = file.isNull() ? 'Null' : (file.isBuffer() ? 'Buffer' : (file.isStream() ? 'Stream' : '?'));
 			const full =
 				'\n' +
 				(file.cwd ? 'cwd:   ' + prop(tildify(file.cwd)) : '') +
 				(file.base ? '\nbase:  ' + prop(tildify(file.base)) : '') +
 				(file.path ? '\npath:  ' + prop(tildify(file.path)) : '') +
+				'\ntype:  ' + chalk.magenta(type) +
 				(file.stat && options.verbose ? '\nstat:  ' + prop(stringifyObject(file.stat, {indent: '       '}).replace(/[{}]/g, '').trim()) : '') +
 				'\n';
 
-			const output = options.minimal ? prop(path.relative(process.cwd(), file.path)) : full;
+			const output = options.minimal ? prop(path.relative(process.cwd(), file.path)) + ' ' + chalk.magenta(type) : full;
 
 			options.logger(options.title + ' ' + output);
 		}
